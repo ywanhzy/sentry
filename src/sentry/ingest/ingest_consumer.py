@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import functools
 import atexit
 import logging
 import msgpack
@@ -10,12 +11,17 @@ import multiprocessing as _multiprocessing
 
 from django.core.cache import cache
 
+import sentry_sdk
+from sentry_sdk import Hub
+from sentry_sdk.tracing import Span
+
 from sentry import eventstore, features, options
 from sentry.cache import default_cache
 from sentry.models import Project, File, EventAttachment
 from sentry.signals import event_accepted
 from sentry.tasks.store import preprocess_event
 from sentry.utils import json, metrics
+from sentry.utils.sdk import mark_scope_as_unsafe
 from sentry.utils.dates import to_datetime
 from sentry.utils.cache import cache_key_for_event
 from sentry.utils.kafka import create_batching_kafka_consumer
@@ -41,55 +47,81 @@ class IngestConsumerWorker(AbstractBatchWorker):
         return message
 
     def flush_batch(self, batch):
+        mark_scope_as_unsafe()
+        with sentry_sdk.start_span(
+            Span(op="ingest_consumer.flush_batch", transaction="IngestConsumerBatch", sampled=True,)
+        ):
+            return self._flush_batch(batch)
+
+    def _flush_batch(self, batch):
         attachment_chunks = []
         other_messages = []
         transactions = []
 
         projects_to_fetch = set()
 
-        with metrics.timer("ingest_consumer.prepare_messages"):
-            for message in batch:
-                message_type = message["type"]
-                projects_to_fetch.add(message["project_id"])
+        with sentry_sdk.start_span(op="ingest_consumer.prepare_messages"):
+            with metrics.timer("ingest_consumer.prepare_messages"):
+                for message in batch:
+                    message_type = message["type"]
+                    projects_to_fetch.add(message["project_id"])
 
-                if message_type == "event":
-                    other_messages.append((process_event, message))
-                elif message_type == "transaction":
-                    transactions.append(message)
-                elif message_type == "attachment_chunk":
-                    attachment_chunks.append(message)
-                elif message_type == "attachment":
-                    other_messages.append((process_individual_attachment, message))
-                elif message_type == "user_report":
-                    other_messages.append((process_userreport, message))
-                else:
-                    raise ValueError("Unknown message type: {}".format(message_type))
-                metrics.incr(
-                    "ingest_consumer.flush.messages_seen", tags={"message_type": message_type}
-                )
+                    if message_type == "event":
+                        other_messages.append((process_event, message))
+                    elif message_type == "transaction":
+                        transactions.append(message)
+                    elif message_type == "attachment_chunk":
+                        attachment_chunks.append(message)
+                    elif message_type == "attachment":
+                        other_messages.append((process_individual_attachment, message))
+                    elif message_type == "user_report":
+                        other_messages.append((process_userreport, message))
+                    else:
+                        raise ValueError("Unknown message type: {}".format(message_type))
+                    metrics.incr(
+                        "ingest_consumer.flush.messages_seen", tags={"message_type": message_type}
+                    )
 
-        with metrics.timer("ingest_consumer.fetch_projects"):
-            projects = {p.id: p for p in Project.objects.get_many_from_cache(projects_to_fetch)}
+        with sentry_sdk.start_span(op="ingest_consumer.fetch_projects") as span:
+            span.set_data("projects_count", len(projects_to_fetch))
+            with metrics.timer("ingest_consumer.fetch_projects"):
+                projects = {p.id: p for p in Project.objects.get_many_from_cache(projects_to_fetch)}
+
+        # manually propagate current hub to thread pool executed functions
+        hub_current = Hub.current
 
         if attachment_chunks:
-            # attachment_chunk messages need to be processed before attachment/event messages.
-            with metrics.timer("ingest_consumer.process_attachment_chunk_batch"):
-                for _ in self.pool.imap_unordered(
-                    lambda msg: process_attachment_chunk(msg, projects=projects),
-                    attachment_chunks,
-                    chunksize=100,
-                ):
-                    pass
+            with sentry_sdk.start_span(op="ingest_consumer.process_attachment_chunk_batch") as span:
+                span.set_data("attachment_chunks_count", len(attachment_chunks))
+                # attachment_chunk messages need to be processed before attachment/event messages.
+                with metrics.timer("ingest_consumer.process_attachment_chunk_batch"):
+                    for _ in self.pool.imap_unordered(
+                        lambda msg: process_attachment_chunk(
+                            msg, projects=projects, thread_hub=Hub(hub_current)
+                        ),
+                        attachment_chunks,
+                        chunksize=100,
+                    ):
+                        pass
 
         if other_messages:
-            with metrics.timer("ingest_consumer.process_other_messages_batch"):
-                for _ in self.pool.imap_unordered(
-                    lambda args: args[0](args[1], projects=projects), other_messages, chunksize=100
-                ):
-                    pass
+            with sentry_sdk.start_span(op="ingest_consumer.process_other_messages_batch") as span:
+                span.set_data("other_messages_count", len(other_messages))
+                with metrics.timer("ingest_consumer.process_other_messages_batch"):
+                    for _ in self.pool.imap_unordered(
+                        lambda args: args[0](
+                            args[1], projects=projects, thread_hub=Hub(hub_current)
+                        ),
+                        other_messages,
+                        chunksize=100,
+                    ):
+                        pass
 
         if transactions:
-            process_transactions_batch(transactions, projects)
+            with sentry_sdk.start_span(op="ingest_consumer.process_transactions") as span:
+                span.set_data("transactions_count", len(transactions))
+                with metrics.timer("ingest_consumer.process_transactions"):
+                    process_transactions_batch(transactions, projects)
 
     def shutdown(self):
         pass
@@ -99,7 +131,7 @@ class IngestConsumerWorker(AbstractBatchWorker):
 def process_transactions_batch(messages, projects):
     if options.get("store.transactions-celery") is True:
         for message in messages:
-            process_event(message, projects)
+            process_event(message, projects, Hub.current)
         return
 
     jobs = []
@@ -118,6 +150,20 @@ def process_transactions_batch(messages, projects):
     save_transaction_events(jobs, projects)
 
 
+def trace_with_thread_hub(**span_kwargs):
+    def wrapper(f):
+        @functools.wraps(f)
+        def inner(message, projects, thread_hub):
+            with thread_hub:
+                with sentry_sdk.start_span(**span_kwargs):
+                    return f(message, projects)
+
+        return inner
+
+    return wrapper
+
+
+@trace_with_thread_hub(op="ingest_consumer.process_event")
 @metrics.wraps("ingest_consumer.process_event")
 def process_event(message, projects):
     payload = message["payload"]
@@ -176,6 +222,7 @@ def process_event(message, projects):
     event_accepted.send_robust(ip=remote_addr, data=data, project=project, sender=process_event)
 
 
+@trace_with_thread_hub(op="ingest_consumer.process_attachment_chunk")
 @metrics.wraps("ingest_consumer.process_attachment_chunk")
 def process_attachment_chunk(message, projects):
     payload = message["payload"]
@@ -189,6 +236,7 @@ def process_attachment_chunk(message, projects):
     )
 
 
+@trace_with_thread_hub(op="ingest_consumer.process_individual_attachment")
 @metrics.wraps("ingest_consumer.process_individual_attachment")
 def process_individual_attachment(message, projects):
     event_id = message["event_id"]
@@ -244,6 +292,7 @@ def process_individual_attachment(message, projects):
     attachment.delete()
 
 
+@trace_with_thread_hub(op="ingest_consumer.process_userreport")
 @metrics.wraps("ingest_consumer.process_userreport")
 def process_userreport(message, projects):
     project_id = int(message["project_id"])

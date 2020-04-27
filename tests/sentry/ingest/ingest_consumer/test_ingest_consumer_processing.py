@@ -13,6 +13,7 @@ from sentry.ingest.ingest_consumer import (
 )
 from sentry.event_manager import EventManager
 from sentry.models import EventAttachment, UserReport, EventUser
+from sentry_sdk import Hub
 
 
 def get_normalized_event(data, project):
@@ -49,6 +50,7 @@ def test_deduplication_works(default_project, task_runner, preprocess_event):
                 "remote_addr": "127.0.0.1",
             },
             projects={default_project.id: default_project},
+            thread_hub=Hub(Hub.current),
         )
 
     (kwargs,) = preprocess_event
@@ -82,6 +84,7 @@ def test_with_attachments(default_project, task_runner, missing_chunks, monkeypa
                 "chunk_index": 0,
             },
             projects={default_project.id: default_project},
+            thread_hub=Hub(Hub.current),
         )
 
         process_attachment_chunk(
@@ -93,6 +96,7 @@ def test_with_attachments(default_project, task_runner, missing_chunks, monkeypa
                 "chunk_index": 1,
             },
             projects={default_project.id: default_project},
+            thread_hub=Hub(Hub.current),
         )
 
     with task_runner():
@@ -114,6 +118,7 @@ def test_with_attachments(default_project, task_runner, missing_chunks, monkeypa
                 ],
             },
             projects={default_project.id: default_project},
+            thread_hub=Hub(Hub.current),
         )
 
     persisted_attachments = list(
@@ -169,6 +174,7 @@ def test_individual_attachments(
                 "chunk_index": i,
             },
             projects={default_project.id: default_project},
+            thread_hub=Hub(Hub.current),
         )
 
     process_individual_attachment(
@@ -185,6 +191,7 @@ def test_individual_attachments(
             "project_id": project_id,
         },
         projects={default_project.id: default_project},
+        thread_hub=Hub(Hub.current),
     )
 
     attachments = list(
@@ -240,6 +247,7 @@ def test_userreport(default_project, monkeypatch):
             "project_id": default_project.id,
         },
         projects={default_project.id: default_project},
+        thread_hub=Hub(Hub.current),
     )
 
     (report,) = UserReport.objects.all()
@@ -274,6 +282,7 @@ def test_userreport_reverse_order(default_project, monkeypatch):
             "project_id": default_project.id,
         },
         projects={default_project.id: default_project},
+        thread_hub=Hub(Hub.current),
     )
 
     mgr = EventManager(data={"event_id": event_id, "user": {"email": "markus+dontatme@sentry.io"}})
@@ -312,6 +321,7 @@ def test_individual_attachments_missing_chunks(default_project, factories, monke
             "project_id": project_id,
         },
         projects={default_project.id: default_project},
+        thread_hub=Hub(Hub.current),
     )
 
     attachments = list(
