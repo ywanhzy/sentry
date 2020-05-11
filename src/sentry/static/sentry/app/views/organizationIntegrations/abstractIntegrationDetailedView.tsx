@@ -1,19 +1,18 @@
-import React from 'react';
-import styled from '@emotion/styled';
-import {RouteComponentProps} from 'react-router/lib/Router';
 import startCase from 'lodash/startCase';
+import React from 'react';
+import {RouteComponentProps} from 'react-router/lib/Router';
+import styled from '@emotion/styled';
 
-import {t} from 'app/locale';
-import AsyncComponent from 'app/components/asyncComponent';
-import space from 'app/styles/space';
-import Tag from 'app/views/settings/components/tag';
-import PluginIcon from 'app/plugins/components/pluginIcon';
 import Access from 'app/components/acl/access';
-import Tooltip from 'app/components/tooltip';
 import Alert, {Props as AlertProps} from 'app/components/alert';
+import AsyncComponent from 'app/components/asyncComponent';
 import ExternalLink from 'app/components/links/externalLink';
-import marked, {singleLineRenderer} from 'app/utils/marked';
-import {IconClose, IconGithub, IconGeneric, IconDocs, IconProject} from 'app/icons';
+import {Panel} from 'app/components/panels';
+import Tooltip from 'app/components/tooltip';
+import {IconClose, IconDocs, IconGeneric, IconGithub, IconProject} from 'app/icons';
+import {t} from 'app/locale';
+import PluginIcon from 'app/plugins/components/pluginIcon';
+import space from 'app/styles/space';
 import {
   Organization,
   IntegrationFeature,
@@ -21,13 +20,14 @@ import {
   SentryAppStatus,
 } from 'app/types';
 import {
-  getIntegrationFeatureGate,
-  trackIntegrationEvent,
-  SingleIntegrationEvent,
   getCategories,
+  getIntegrationFeatureGate,
+  SingleIntegrationEvent,
+  trackIntegrationEvent,
 } from 'app/utils/integrationUtil';
-import {Panel} from 'app/components/panels';
+import marked, {singleLineRenderer} from 'app/utils/marked';
 import EmptyMessage from 'app/views/settings/components/emptyMessage';
+import Tag from 'app/views/settings/components/tag';
 
 import IntegrationStatus from './integrationStatus';
 
