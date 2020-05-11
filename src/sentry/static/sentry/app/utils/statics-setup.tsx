@@ -10,5 +10,5 @@ declare var __webpack_public_path__: string;
  * NOTE: This MUST be loaded before any other app modules in the entrypoint.
  */
 if (window.__sentryGlobalStaticPrefix) {
-  __webpack_public_path__ = window.__sentryGlobalStaticPrefix;
+  // __webpack_public_path__ = window.__sentryGlobalStaticPrefix;
 }
