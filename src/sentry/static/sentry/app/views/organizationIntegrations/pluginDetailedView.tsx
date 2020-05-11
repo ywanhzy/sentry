@@ -11,6 +11,7 @@ import withOrganization from 'app/utils/withOrganization';
 
 import AbstractIntegrationDetailedView from './abstractIntegrationDetailedView';
 import InstalledPlugin from './installedPlugin';
+import RequestIntegrationButton from './requestIntegrationButton';
 
 type State = {
   plugins: PluginWithProjectList[];
@@ -135,17 +136,21 @@ class PluginDetailedView extends AbstractIntegrationDetailedView<
   }
 
   renderTopButton(disabledFromFeatures: boolean, userHasAccess: boolean) {
-    return (
-      <AddButton
-        data-test-id="install-button"
-        disabled={disabledFromFeatures || !userHasAccess}
-        onClick={this.handleAddToProject}
-        size="small"
-        priority="primary"
-      >
-        {t('Add to Project')}
-      </AddButton>
-    );
+    if (userHasAccess) {
+      return (
+        <AddButton
+          data-test-id="install-button"
+          disabled={disabledFromFeatures}
+          onClick={this.handleAddToProject}
+          size="small"
+          priority="primary"
+        >
+          {t('Add to Project')}
+        </AddButton>
+      );
+    }
+
+    return <RequestIntegrationButton />;
   }
 
   renderConfigurations() {
