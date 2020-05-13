@@ -548,7 +548,7 @@ class JavaScriptStacktraceProcessor(StacktraceProcessor):
         has_context_line = bool(frame.get("context_line"))
         # if the frame already has a context_line, we consider it already symbolicated
         # and therefore skip the processor handling it
-        return settings.SENTRY_SCRAPE_JAVASCRIPT_CONTEXT and platform in ("javascript", "node") and is_valid_frame(frame) and not has_context_line
+        return (not has_context_line) and settings.SENTRY_SCRAPE_JAVASCRIPT_CONTEXT and platform in ("javascript", "node") and is_valid_frame(frame)
 
     def preprocess_frame(self, processable_frame):
         # Stores the resolved token.  This is used to cross refer to other
