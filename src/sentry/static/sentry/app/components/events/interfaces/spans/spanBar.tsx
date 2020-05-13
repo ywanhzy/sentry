@@ -143,7 +143,7 @@ const INTERSECTION_THRESHOLDS: Array<number> = [
 
 const TOGGLE_BUTTON_MARGIN_RIGHT = 16;
 const TOGGLE_BUTTON_MAX_WIDTH = 30;
-const TOGGLE_BORDER_BOX = TOGGLE_BUTTON_MAX_WIDTH + TOGGLE_BUTTON_MARGIN_RIGHT;
+export const TOGGLE_BORDER_BOX = TOGGLE_BUTTON_MAX_WIDTH + TOGGLE_BUTTON_MARGIN_RIGHT;
 const MARGIN_LEFT = 0;
 
 type DurationDisplay = 'left' | 'right' | 'inset';
@@ -877,7 +877,7 @@ export const DividerLine = styled('div')`
   }
 `;
 
-const SpanBarTitleContainer = styled('div')`
+export const SpanBarTitleContainer = styled('div')`
   display: flex;
   align-items: center;
   height: 100%;
@@ -888,7 +888,7 @@ const SpanBarTitleContainer = styled('div')`
   user-select: none;
 `;
 
-const SpanBarTitle = styled('div')`
+export const SpanBarTitle = styled('div')`
   position: relative;
   height: 100%;
   font-size: ${p => p.theme.fontSizeSmall};
@@ -1074,7 +1074,7 @@ const Chevron = styled(InlineSvg)`
   margin-left: ${space(0.25)};
 `;
 
-const OperationName = styled('span')<{spanErrors: TableDataRow[]}>`
+export const OperationName = styled('span')<{spanErrors: TableDataRow[]}>`
   color: ${p => (p.spanErrors.length ? p.theme.error : 'inherit')};
 `;
 
