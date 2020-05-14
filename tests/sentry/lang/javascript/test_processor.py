@@ -924,93 +924,83 @@ class CacheSourceTest(TestCase):
         assert len(processor.cache.get_errors(abs_path)) == 1
         assert processor.cache.get_errors(abs_path)[0] == {"url": map_url, "type": "js_no_source"}
 
-class HandlesFrameTest(TestCase):
-    def test_should_run_processor(self):
-        project = self.create_project()
-        processor = JavaScriptStacktraceProcessor(data={}, stacktrace_infos=None, project=project)
 
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": "",
-            "lineno": 1,
-            "colno": 0,
-        }
-        assert processor.handles_frame(frame, {}) is True
+@pytest.mark.parametrize('frame', [
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "context_line": "",
+        "lineno": 1,
+        "colno": 0,
+    },
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "lineno": 1,
+    },
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "context_line": None,
+        "lineno": 1,
+        "colno": 0,
+    }
+])
+@pytest.mark.django_db
+def test_should_run_processor(frame, default_project):
+    processor = JavaScriptStacktraceProcessor(data={}, stacktrace_infos=None, project=default_project)
 
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "lineno": 1,
-        }
-        assert processor.handles_frame(frame, {}) is True
+    assert processor.handles_frame(frame, {}) is True
 
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": None,
-            "lineno": 1,
-            "colno": 0,
-        }
-        assert processor.handles_frame(frame, {}) is True
+@pytest.mark.parametrize('frame', [
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript"
+    },
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "context_line": None
+    },
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "context_line": None,
+        "lineno": None,
+        "colno": None,
+    },
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "context_line": "abc",
+        "colno": 1,
+        "lineno": 1,
+    },
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "context_line": "abc",
+        "colno": 0,
+        "lineno": 0,
+    },
+    {
+        "abs_path": "http://example.com/foo.js",
+        "filename": "foo.js",
+        "platform": "javascript",
+        "context_line": "abc",
+        "lineno": 1,
+    }
+])
+@pytest.mark.django_db
+def test_should_skip_processor(frame, default_project):
+    processor = JavaScriptStacktraceProcessor(data={}, stacktrace_infos=None, project=default_project)
 
-    def test_should_skip_processor(self):
-        project = self.create_project()
-        processor = JavaScriptStacktraceProcessor(data={}, stacktrace_infos=None, project=project)
-
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript"
-        }
-        assert processor.handles_frame(frame, {}) is False
-
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": None
-        }
-        assert processor.handles_frame(frame, {}) is False
-
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": None,
-            "lineno": None,
-            "colno": None,
-        }
-        assert processor.handles_frame(frame, {}) is False
-
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": "abc",
-            "colno": 1,
-            "lineno": 1,
-        }
-        assert processor.handles_frame(frame, {}) is False
-
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": "abc",
-            "colno": 0,
-            "lineno": 0,
-        }
-        assert processor.handles_frame(frame, {}) is False
-
-        frame = {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": "abc",
-            "lineno": 1,
-        }
-        assert processor.handles_frame(frame, {}) is False
+    assert processor.handles_frame(frame, {}) is False
