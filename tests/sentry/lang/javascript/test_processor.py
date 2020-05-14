@@ -934,7 +934,6 @@ class CacheSourceTest(TestCase):
             "platform": "javascript",
             "context_line": "",
             "lineno": 1,
-            "colno": 0,
         },
         {
             "abs_path": "http://example.com/foo.js",
@@ -948,7 +947,6 @@ class CacheSourceTest(TestCase):
             "platform": "javascript",
             "context_line": None,
             "lineno": 1,
-            "colno": 0,
         },
     ],
 )
@@ -977,14 +975,12 @@ def test_should_run_processor(frame, default_project):
             "platform": "javascript",
             "context_line": None,
             "lineno": None,
-            "colno": None,
         },
         {
             "abs_path": "http://example.com/foo.js",
             "filename": "foo.js",
             "platform": "javascript",
             "context_line": "abc",
-            "colno": 1,
             "lineno": 1,
         },
         {
@@ -992,15 +988,7 @@ def test_should_run_processor(frame, default_project):
             "filename": "foo.js",
             "platform": "javascript",
             "context_line": "abc",
-            "colno": 0,
             "lineno": 0,
-        },
-        {
-            "abs_path": "http://example.com/foo.js",
-            "filename": "foo.js",
-            "platform": "javascript",
-            "context_line": "abc",
-            "lineno": 1,
         },
     ],
 )
