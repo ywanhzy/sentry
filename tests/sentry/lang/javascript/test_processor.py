@@ -925,82 +925,89 @@ class CacheSourceTest(TestCase):
         assert processor.cache.get_errors(abs_path)[0] == {"url": map_url, "type": "js_no_source"}
 
 
-@pytest.mark.parametrize('frame', [
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "context_line": "",
-        "lineno": 1,
-        "colno": 0,
-    },
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "lineno": 1,
-    },
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "context_line": None,
-        "lineno": 1,
-        "colno": 0,
-    }
-])
+@pytest.mark.parametrize(
+    "frame",
+    [
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "context_line": "",
+            "lineno": 1,
+            "colno": 0,
+        },
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "lineno": 1,
+        },
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "context_line": None,
+            "lineno": 1,
+            "colno": 0,
+        },
+    ],
+)
 @pytest.mark.django_db
 def test_should_run_processor(frame, default_project):
-    processor = JavaScriptStacktraceProcessor(data={}, stacktrace_infos=None, project=default_project)
+    processor = JavaScriptStacktraceProcessor(
+        data={}, stacktrace_infos=None, project=default_project
+    )
 
     assert processor.handles_frame(frame, {}) is True
 
-@pytest.mark.parametrize('frame', [
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript"
-    },
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "context_line": None
-    },
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "context_line": None,
-        "lineno": None,
-        "colno": None,
-    },
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "context_line": "abc",
-        "colno": 1,
-        "lineno": 1,
-    },
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "context_line": "abc",
-        "colno": 0,
-        "lineno": 0,
-    },
-    {
-        "abs_path": "http://example.com/foo.js",
-        "filename": "foo.js",
-        "platform": "javascript",
-        "context_line": "abc",
-        "lineno": 1,
-    }
-])
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        {"abs_path": "http://example.com/foo.js", "filename": "foo.js", "platform": "javascript"},
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "context_line": None,
+        },
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "context_line": None,
+            "lineno": None,
+            "colno": None,
+        },
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "context_line": "abc",
+            "colno": 1,
+            "lineno": 1,
+        },
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "context_line": "abc",
+            "colno": 0,
+            "lineno": 0,
+        },
+        {
+            "abs_path": "http://example.com/foo.js",
+            "filename": "foo.js",
+            "platform": "javascript",
+            "context_line": "abc",
+            "lineno": 1,
+        },
+    ],
+)
 @pytest.mark.django_db
 def test_should_skip_processor(frame, default_project):
-    processor = JavaScriptStacktraceProcessor(data={}, stacktrace_infos=None, project=default_project)
+    processor = JavaScriptStacktraceProcessor(
+        data={}, stacktrace_infos=None, project=default_project
+    )
 
     assert processor.handles_frame(frame, {}) is False
