@@ -1,7 +1,6 @@
 import React from 'react';
 
 import BreadcrumbTime from '../breadcrumbs/breadcrumbTime';
-import BreadcrumbCollapsed from '../breadcrumbs/breadcrumbCollapsed';
 import {Breadcrumb, BreadcrumbDetails, BreadcrumbType} from '../breadcrumbs/types';
 import BreadcrumbData from './breadcrumbData/breadcrumbData';
 import BreadcrumbCategory from './breadcrumbCategory';
@@ -13,19 +12,10 @@ type Breadcrumbs = Array<Breadcrumb & BreadcrumbDetails & {id: number}>;
 
 type Props = {
   breadcrumbs: Breadcrumbs;
-  collapsedQuantity: number;
-  onToggleCollapse: () => void;
 };
 
-const BreadcrumbsListBody = ({
-  breadcrumbs,
-  collapsedQuantity,
-  onToggleCollapse,
-}: Props) => (
+const BreadcrumbsListBody = ({breadcrumbs}: Props) => (
   <React.Fragment>
-    {collapsedQuantity > 0 && (
-      <BreadcrumbCollapsed onClick={onToggleCollapse} quantity={collapsedQuantity} />
-    )}
     {breadcrumbs.map(({color, borderColor, icon, ...crumb}, idx) => {
       const hasError =
         crumb.type === BreadcrumbType.MESSAGE || crumb.type === BreadcrumbType.EXCEPTION;
