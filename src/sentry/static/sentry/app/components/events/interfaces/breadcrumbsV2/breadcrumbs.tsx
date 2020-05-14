@@ -187,16 +187,13 @@ class BreadcrumbsContainer extends React.Component<Props, State> {
   };
 
   collapsedCrumbs = () => {
-    const {isCollapsed, filteredBreadcrumbs} = this.state;
-
-    let filteredCollapsed = filteredBreadcrumbs;
-
-    if (isCollapsed && filteredCollapsed.length > MAX_CRUMBS_WHEN_COLLAPSED) {
-      filteredCollapsed = filteredCollapsed.slice(-MAX_CRUMBS_WHEN_COLLAPSED);
-    }
-    this.setState({
-      filteredCollapsed,
-    });
+    this.setState(prevState => ({
+      filteredCollapsed:
+        prevState.isCollapsed &&
+        prevState.filteredBreadcrumbs.length > MAX_CRUMBS_WHEN_COLLAPSED
+          ? prevState.filteredBreadcrumbs.slice(-MAX_CRUMBS_WHEN_COLLAPSED)
+          : prevState.filteredBreadcrumbs,
+    }));
   };
 
   handleFilter = (filterGroups: BreadcrumbFilterGroups) => () => {
