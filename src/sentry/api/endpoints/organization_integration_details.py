@@ -17,9 +17,9 @@ class OrganizationIntegrationDetailsEndpoint(OrganizationIntegrationBaseEndpoint
     permission_classes = (OrganizationIntegrationsPermission,)
 
     def get(self, request, organization, integration_id):
-        integration = self.get_organization_integration(organization, integration_id)
+        org_integration = self.get_organization_integration(organization, integration_id)
 
-        return self.respond(serialize(integration, request.user))
+        return self.respond(serialize(org_integration, request.user))
 
     def delete(self, request, organization, integration_id):
         # Removing the integration removes the organization
