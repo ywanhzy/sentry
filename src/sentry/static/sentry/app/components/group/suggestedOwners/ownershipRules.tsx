@@ -34,7 +34,7 @@ const OwnershipRules = ({project, organization, issueId, eventId}: Props) => {
   return (
     <Wrapper>
       <Header>
-        <Heading>{t('Ownership Rules')}</Heading>
+        <Heading>{t('Additional Rules')}</Heading>
         <ClassNames>
           {({css}) => (
             <Hovercard
@@ -86,5 +86,4 @@ const Content = styled('div')`
   display: grid;
   grid-gap: ${space(1)};
   justify-content: flex-start;
-  font-size: ${p => p.theme.fontSizeMedium};
 `;
