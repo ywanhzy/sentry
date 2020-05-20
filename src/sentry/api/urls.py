@@ -114,6 +114,7 @@ from .endpoints.organization_incident_subscription_index import (
 from .endpoints.organization_index import OrganizationIndexEndpoint
 from .endpoints.organization_integration_details import OrganizationIntegrationDetailsEndpoint
 from .endpoints.organization_integration_repos import OrganizationIntegrationReposEndpoint
+from .endpoints.organization_integration_request import OrganizationIntegrationRequestEndpoint
 from .endpoints.organization_integrations import OrganizationIntegrationsEndpoint
 from .endpoints.organization_issues_new import OrganizationIssuesNewEndpoint
 from .endpoints.organization_issues_resolved_in_release import (
@@ -833,6 +834,10 @@ urlpatterns = [
                 url(
                     r"^(?P<organization_slug>[^\/]+)/integrations/(?P<integration_id>[^\/]+)/repos/$",
                     OrganizationIntegrationReposEndpoint.as_view(),
+                ),
+                url(
+                    r"^(?P<organization_slug>[^\/]+)/integrations/(?P<integration_id>[^\/]+)/request$",
+                    OrganizationIntegrationRequestEndpoint.as_view(),
                 ),
                 url(
                     r"^(?P<organization_slug>[^\/]+)/members/$",
