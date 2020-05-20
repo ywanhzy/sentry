@@ -3,7 +3,10 @@ import styled from '@emotion/styled';
 import {ClassNames} from '@emotion/core';
 
 import {IconQuestion} from 'app/icons';
-import {openCreateOwnershipRule} from 'app/actionCreators/modal';
+import {
+  openCreateOwnershipRule,
+  openCreateDataPrivacyRule,
+} from 'app/actionCreators/modal';
 import {t} from 'app/locale';
 import Button from 'app/components/button';
 import GuideAnchor from 'app/components/assistant/guideAnchor';
@@ -17,11 +20,16 @@ type Props = {
   project: Project;
   organization: Organization;
   issueId: string;
+  eventId: string;
 };
 
-const OwnershipRules = ({project, organization, issueId}: Props) => {
+const OwnershipRules = ({project, organization, issueId, eventId}: Props) => {
   const handleOpenCreateOwnershipRule = () => {
     openCreateOwnershipRule({project, organization, issueId});
+  };
+
+  const handleOpenCreateDataPrivacyRule = () => {
+    openCreateDataPrivacyRule({project, organization, eventId});
   };
 
   return (
@@ -59,6 +67,11 @@ const OwnershipRules = ({project, organization, issueId}: Props) => {
       <GuideAnchor target="owners" position="bottom" offset={space(3)}>
         <Button onClick={handleOpenCreateOwnershipRule} size="small">
           {t('Create Ownership Rule')}
+        </Button>
+      </GuideAnchor>
+      <GuideAnchor target="owners" position="bottom" offset={space(3)}>
+        <Button onClick={handleOpenCreateDataPrivacyRule} size="small">
+          {t('Create Data Privacy Rule')}
         </Button>
       </GuideAnchor>
     </Wrapper>

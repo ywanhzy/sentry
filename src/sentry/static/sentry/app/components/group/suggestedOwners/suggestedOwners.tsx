@@ -59,10 +59,6 @@ class SuggestedOwners extends React.Component<Props, State> {
   }
 
   async fetchData(event: Event) {
-    if (!event) {
-      return;
-    }
-
     // No committers if you don't have any releases
     if (!!this.props.group.firstRelease) {
       this.fetchCommitters(event.id);
@@ -171,7 +167,7 @@ class SuggestedOwners extends React.Component<Props, State> {
   };
 
   render() {
-    const {organization, project, group} = this.props;
+    const {organization, project, group, event} = this.props;
     const owners = this.getOwnerList();
 
     return (
@@ -184,11 +180,12 @@ class SuggestedOwners extends React.Component<Props, State> {
             issueId={group.id}
             project={project}
             organization={organization}
+            eventId={event.id}
           />
         </Access>
       </React.Fragment>
     );
   }
 }
-export {SuggestedOwners};
+
 export default withApi(withOrganization(SuggestedOwners));
