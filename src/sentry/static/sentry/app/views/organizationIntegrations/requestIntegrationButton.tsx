@@ -10,7 +10,6 @@ import space from 'app/styles/space';
 import InputField from 'app/views/settings/components/forms/inputField';
 import TextBlock from 'app/views/settings/components/text/textBlock';
 
-
 // TODO expand
 type Props = AsyncComponent['props'];
 type State = AsyncComponent['state'];
@@ -28,20 +27,24 @@ const RequestIntegrationModalContent = ({Header, Body, Footer, closeModal}) => (
     <Body>
       <TextBlock>
         {/* TODO read this from a file? */}
-        {t('TODO 3.4 I\'m baby woke pork belly sustainable post-ironic vinyl la croix chia stumptown bespoke echo park literally affogato taxidermy health goth keytar. Pickled tilde franzen PBR&B, typewriter portland meditation mixtape copper mug affogato. Franzen bicycle rights you probably haven\'t heard of them adaptogen butcher cardigan. Vexillologist enamel pin fingerstache, narwhal kickstarter celiac palo santo poke skateboard chartreuse tumblr cronut venmo squid. Kickstarter keffiyeh distillery, meggings heirloom pop-up occupy echo park fam quinoa bicycle rights literally semiotics. Small batch stumptown raw denim snackwave iPhone enamel pin la croix kale chips craft beer keytar hashtag farm-to-table ugh humblebrag.')}
+        {t(
+          "TODO 3.4 I'm baby woke pork belly sustainable post-ironic vinyl la croix chia stumptown bespoke echo park literally affogato taxidermy health goth keytar. Pickled tilde franzen PBR&B, typewriter portland meditation mixtape copper mug affogato. Franzen bicycle rights you probably haven't heard of them adaptogen butcher cardigan. Vexillologist enamel pin fingerstache, narwhal kickstarter celiac palo santo poke skateboard chartreuse tumblr cronut venmo squid. Kickstarter keffiyeh distillery, meggings heirloom pop-up occupy echo park fam quinoa bicycle rights literally semiotics. Small batch stumptown raw denim snackwave iPhone enamel pin la croix kale chips craft beer keytar hashtag farm-to-table ugh humblebrag."
+        )}
       </TextBlock>
       <TextBlock>
-        {tct('An email will be sent to [email] with your request.', {email: 'TODO EMAIL'})}
+        {tct('An email will be sent to [email] with your request.', {
+          email: 'TODO EMAIL',
+        })}
       </TextBlock>
       <InputField
         inline={false}
         flexibleControlStateSize
         stacked
-        label={"countLabel"}
+        label="countLabel"
         name="message"
         type="string"
         onChange={val => {
-          console.log("val", val)
+          console.log('val', val);
         }}
         placeholder={t('TODO 3.5 Optional message')}
       />
@@ -81,23 +84,23 @@ class RequestIntegrationButton extends AsyncComponent<Props, State> {
    * @param {String} to
    */
   sendRequest = (organization: any, integration: any, callback: Function) => {
-    const path = `organizations/${organization.slug}/integrations/${integration.id}/request`
+    const path = `organizations/${organization.slug}/integrations/${integration.id}/request`;
     this.api
-        .requestPromise(path, {
-          method: 'POST',
-          data: {message: this.state.message},
-        })
-        .then(
-          () => this.setState({isSent: true}),
-          () => addErrorMessage('Error sending the request'),
-        );
-    callback()
+      .requestPromise(path, {
+        method: 'POST',
+        data: {message: this.state.message},
+      })
+      .then(
+        () => this.setState({isSent: true}),
+        () => addErrorMessage('Error sending the request')
+      );
+    callback();
   };
 
   openRequestModal() {
-    this.setState({isOpen: true})
+    this.setState({isOpen: true});
     openModal(RequestIntegrationModalContent, {
-      onClose: () => this.setState({isOpen: false})
+      onClose: () => this.setState({isOpen: false}),
     });
   }
 
@@ -106,11 +109,11 @@ class RequestIntegrationButton extends AsyncComponent<Props, State> {
 
     let buttonText;
     if (isOpen) {
-      buttonText = 'Requesting Installation'
+      buttonText = 'Requesting Installation';
     } else if (isSent) {
-      buttonText = 'Installation Requested'
+      buttonText = 'Installation Requested';
     } else {
-      buttonText = 'Request Installation'
+      buttonText = 'Request Installation';
     }
 
     return (
