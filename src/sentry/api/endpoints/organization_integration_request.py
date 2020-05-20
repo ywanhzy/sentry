@@ -33,7 +33,7 @@ class OrganizationIntegrationRequestEndpoint(OrganizationIntegrationBaseEndpoint
 
         # If for some reason the user had permissions all along, silently fail.
         requester = request.user
-        if requester.id in map(lambda user: user.id, organization.get_owners()):
+        if requester.id in [user.id for user in organization.get_owners()]:
             return Response({"detail": "User can install integration"}, status=200)
 
         # In the edge case where an admin adds the integration between the user
@@ -67,7 +67,7 @@ class OrganizationIntegrationRequestEndpoint(OrganizationIntegrationBaseEndpoint
             context=context,
         )
 
-        # TODO 1.1 What if there are multiple owners? What if there are no owners?
-        msg.send_async([organization.get_default_owner().email])
+        # TODO 1.2 Should we check email preferences/unsubscribes?
+        msg.send_async([user.email for user in organization.get_owners()])
 
         return Response(status=201)
