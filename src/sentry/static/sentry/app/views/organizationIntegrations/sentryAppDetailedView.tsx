@@ -3,7 +3,10 @@ import styled from '@emotion/styled';
 
 import {addErrorMessage, addSuccessMessage} from 'app/actionCreators/indicator';
 import {openModal} from 'app/actionCreators/modal';
-import {installSentryApp, uninstallSentryApp } from 'app/actionCreators/sentryAppInstallations';
+import {
+  installSentryApp,
+  uninstallSentryApp,
+} from 'app/actionCreators/sentryAppInstallations';
 import Button from 'app/components/button';
 import CircleIndicator from 'app/components/circleIndicator';
 import Confirm from 'app/components/confirm';
@@ -248,11 +251,11 @@ class SentryAppDetailedView extends AbstractIntegrationDetailedView<
           priority="danger"
         >
           <StyledUninstallButton size="small" data-test-id="sentry-app-uninstall">
-            <IconSubtract isCircled style={{marginRight: space(0.75)}}/>
+            <IconSubtract isCircled style={{marginRight: space(0.75)}} />
             {t('Uninstall')}
           </StyledUninstallButton>
         </Confirm>
-      )
+      );
     }
 
     if (userHasAccess) {
