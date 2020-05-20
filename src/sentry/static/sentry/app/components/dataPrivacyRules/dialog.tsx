@@ -145,18 +145,19 @@ class Dialog extends React.Component<Props, State> {
     const {rule} = this.state;
     const {onSubmitSuccess, api, onClose, endpoint} = this.props;
 
-    await submitRule(api, endpoint, rule)
-      .then(result => {
-        addSuccessMessage(t('Successfully saved rule'));
+    try {
+      const data = await submitRule(api, endpoint, rule);
 
-        if (onSubmitSuccess) {
-          onSubmitSuccess(result);
-        }
-        onClose();
-      })
-      .catch(error => {
-        this.convertRequestError(handleError(error));
-      });
+      addSuccessMessage(t('Successfully saved rule'));
+
+      if (onSubmitSuccess) {
+        onSubmitSuccess(data);
+      }
+
+      onClose();
+    } catch (error) {
+      this.convertRequestError(handleError(error));
+    }
   };
 
   render() {

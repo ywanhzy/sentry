@@ -13,7 +13,7 @@ type PiiConfig = {
 type PiiConfigRule = Record<string, PiiConfig>;
 type Applications = Record<string, Array<string>>;
 
-async function submitRule(api: Client, endpoint: string, rule: Rule) {
+function submitRule(api: Client, endpoint: string, rule: Rule) {
   const applications: Applications = {};
   const customRules: PiiConfigRule = {};
 
@@ -46,7 +46,7 @@ async function submitRule(api: Client, endpoint: string, rule: Rule) {
 
   const relayPiiConfig = JSON.stringify(piiConfig);
 
-  return await api.requestPromise(endpoint, {
+  return api.requestPromise(endpoint, {
     method: 'PUT',
     data: {relayPiiConfig},
   });
