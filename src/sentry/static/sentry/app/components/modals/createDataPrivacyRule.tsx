@@ -77,9 +77,6 @@ const modalCss = css`
       width: 100%;
     }
   }
-  .close {
-    outline: none;
-  }
 `;
 
 export {modalCss, CreateDataPrivacyRule};

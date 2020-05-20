@@ -9,7 +9,6 @@ import {
 } from 'app/actionCreators/modal';
 import {t} from 'app/locale';
 import Button from 'app/components/button';
-import GuideAnchor from 'app/components/assistant/guideAnchor';
 import Hovercard from 'app/components/hovercard';
 import space from 'app/styles/space';
 import {Project, Organization} from 'app/types';
@@ -64,16 +63,14 @@ const OwnershipRules = ({project, organization, issueId, eventId}: Props) => {
           )}
         </ClassNames>
       </Header>
-      <GuideAnchor target="owners" position="bottom" offset={space(3)}>
-        <Button onClick={handleOpenCreateOwnershipRule} size="small">
+      <Content>
+        <Button onClick={handleOpenCreateOwnershipRule} priority="link" align="left">
           {t('Create Ownership Rule')}
         </Button>
-      </GuideAnchor>
-      <GuideAnchor target="owners" position="bottom" offset={space(3)}>
-        <Button onClick={handleOpenCreateDataPrivacyRule} size="small">
+        <Button onClick={handleOpenCreateDataPrivacyRule} priority="link" align="left">
           {t('Create Data Privacy Rule')}
         </Button>
-      </GuideAnchor>
+      </Content>
     </Wrapper>
   );
 };
@@ -83,4 +80,11 @@ export {OwnershipRules};
 const HelpfulBody = styled('div')`
   padding: ${space(1)};
   text-align: center;
+`;
+
+const Content = styled('div')`
+  display: grid;
+  grid-gap: ${space(1)};
+  justify-content: flex-start;
+  font-size: ${p => p.theme.fontSizeMedium};
 `;
