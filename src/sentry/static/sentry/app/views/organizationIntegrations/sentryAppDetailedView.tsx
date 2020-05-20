@@ -237,33 +237,37 @@ class SentryAppDetailedView extends AbstractIntegrationDetailedView<
   renderTopButton(disabledFromFeatures: boolean, userHasAccess: boolean) {
     const install = this.install;
     if (install) {
-      <Confirm
-        disabled={!userHasAccess}
-        message={tct('Are you sure you want to remove the [slug] installation?', {
-          slug: this.integrationSlug,
-        })}
-        onConfirm={() => this.handleUninstall(install)} //called when the user confirms the action
-        onConfirming={this.recordUninstallClicked} //called when the confirm modal opens
-        priority="danger"
-      >
-        <StyledUninstallButton size="small" data-test-id="sentry-app-uninstall">
-          <IconSubtract isCircled style={{marginRight: space(0.75)}}/>
-          {t('Uninstall')}
-        </StyledUninstallButton>
-      </Confirm>
+      return (
+        <Confirm
+          disabled={!userHasAccess}
+          message={tct('Are you sure you want to remove the [slug] installation?', {
+            slug: this.integrationSlug,
+          })}
+          onConfirm={() => this.handleUninstall(install)} //called when the user confirms the action
+          onConfirming={this.recordUninstallClicked} //called when the confirm modal opens
+          priority="danger"
+        >
+          <StyledUninstallButton size="small" data-test-id="sentry-app-uninstall">
+            <IconSubtract isCircled style={{marginRight: space(0.75)}}/>
+            {t('Uninstall')}
+          </StyledUninstallButton>
+        </Confirm>
+      )
     }
 
     if (userHasAccess) {
-      <InstallButton
-        data-test-id="install-button"
-        disabled={disabledFromFeatures}
-        onClick={() => this.handleInstall()}
-        priority="primary"
-        size="small"
-        style={{marginLeft: space(1)}}
-      >
-        {t('Accept & Install')}
-      </InstallButton>
+      return (
+        <InstallButton
+          data-test-id="install-button"
+          disabled={disabledFromFeatures}
+          onClick={() => this.handleInstall()}
+          priority="primary"
+          size="small"
+          style={{marginLeft: space(1)}}
+        >
+          {t('Accept & Install')}
+        </InstallButton>
+      );
     }
 
     return <RequestIntegrationButton />;
