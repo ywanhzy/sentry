@@ -26,6 +26,10 @@ class OrganizationIntegrationRequestEndpoint(OrganizationIntegrationBaseEndpoint
 
         :param string message: Optional message from the requester to the owner.
         """
+        # Check for the integrations existence first.
+        integration = Integration.objects.get(id=integration_id)
+        if not integration:
+            return Response({"detail": "Invalid Integration ID"}, status=400)
 
         # If for some reason the user had permissions all along, silently fail.
         requester = request.user
@@ -34,12 +38,9 @@ class OrganizationIntegrationRequestEndpoint(OrganizationIntegrationBaseEndpoint
 
         # In the edge case where an admin adds the integration between the user
         # seeing and clicking the button, just silently fail.
-        installed_integration = self.get_organization_integration(organization, integration_id)
+        installed_integration = self.get_organization_integration(organization, integration.id)
         if installed_integration and installed_integration.status == ObjectStatus.ACTIVE:
             return Response({"detail": "Integration already installed"}, status=200)
-
-        # TODO 1.0 is this the right way? Is there a more explicit primary key call?
-        integration = Integration.objects.filter(integration_id=integration_id)
 
         # TODO 2.0 figure out url
         url = ""
